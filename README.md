@@ -1,4 +1,4 @@
-![ChatBot](https://cdn.discordapp.com/attachments/733391066136313879/1147095229527240704/CHATBOT.png)
+![ChatBot](https://cdn.discordapp.com/attachments/733391066136313879/1147239203466379286/CHATBOT.png)
 
 ![Logo](https://img.shields.io/badge/Created%20by-GabryWasTaken-blue)
  
