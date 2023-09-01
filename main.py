@@ -11,7 +11,9 @@ from users import superuser
 from superuser import SuperUser as s
 import os
 from dotenv import load_dotenv
-
+import passwordcheck as p
+import datetime
+from tabulate import tabulate
 load_dotenv()
 
 
@@ -45,14 +47,13 @@ def save_credentials(username, password):
 
 def verify_credentials(username, password):
     stored_password = os.getenv(username)
-    print(stored_password)
     if stored_password == password:
         return True
 
 
 def register():
     new_username = input("Create a username: ")
-    new_password = input("Create a password: ")
+    new_password = p.getpass_masked()
 
     save_credentials(new_username, new_password)
     print("Registration Completed. Now you can login with your credentials.")
@@ -61,17 +62,16 @@ def register():
 
 def login():
     username = input("Insert the username: ")
-    password = input("Insert the password: ")
+    password = p.getpass_masked()
     
     if verify_credentials(username, password):
         while True:
             print("do you wanna log like user or superuser?")
-            resp=input("user/superuser: ")
-            resp=resp.lower()
-            if resp =="user":
+            resp=input("0/1: ")
+            if resp =="0":
                 type="user"
                 break
-            elif resp =="superuser":
+            elif resp =="1":
                 type="superuser"
                 break
             else:
@@ -121,22 +121,36 @@ def main(username,type):
             case 3:
                 n=int(0)
                 try:
-                    interaction=input("How many interaction do you wanna see? (A number for example 3)")
+                    interaction=input("How many interaction do you wanna see? (A number for example 3): ")
                     interaction=int(interaction)
                 except:
                     print("Number selected is wrong... Back in menu")
                     interaction=int(0)
                 list=usr.get_N_message(c.client,c.db,c.collection)
+
                 while True:
                     n=n+1
                     try:
                         if n<=interaction:
-                            print(list.pop())
+                            tab = dict()
+                            tab=list.pop()
+                            timestamp=tab['time_stamp']
+                            date = datetime.datetime.fromtimestamp(timestamp)
+                            date = date.strftime('%Y-%m-%d %H:%M:%S')            
+                            print("###########################################################")
+                            table = [
+                                ["User name", tab['user_name']],
+                                ["Message Sent", tab['message_sent']],
+                                ["Message received", tab['message_received']],
+                                ["Message time", str(date)]
+                                    ]
+                            print(tabulate(table,tablefmt="grid"))
                         else:
                             break
                     except IndexError:
                         print("Number of interaction greater than interaction of user/s...")
                         break
+
 
             case default:
                 print("Incorrect number selected, Retry...")
