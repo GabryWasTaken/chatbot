@@ -14,6 +14,8 @@ from dotenv import load_dotenv
 import passwordcheck as p
 import datetime
 from tabulate import tabulate
+from database import store_data as dt
+import hashlib
 load_dotenv()
 
 
@@ -41,23 +43,45 @@ def loginpage():
             case default:
                 print("Invalid Input... Please Try Again Later")
 
-def save_credentials(username, password):
-    with open(".env", "a") as env_file:
-        env_file.write(f"\n{username}={password}")
+def save_credentials(username, password,type):
+    dt.store_user(username,password,type)
 
-def verify_credentials(username, password):
-    stored_password = os.getenv(username)
-    if stored_password == password:
+def verify_credentials(username,password):
+    password= hashlib.md5(password.encode())
+    password=password.hexdigest() 
+    doc = dt.search_credentials(username,password)
+    try:
+        stored_password=doc["password"]
+        stored_username=doc["user_name"]
+    except:
+        stored_password=""
+        stored_username=""
+    if stored_password == password and stored_username==username:
         return True
 
 
 def register():
-    new_username = input("Create a username: ")
+    while True:
+        new_username = input("Create a username: ")
+        username=dt.get_username(new_username)
+        if new_username == username:
+            print("Username alredy exists, retry...")
+        else:
+            break
     new_password = p.getpass_masked()
-
-    save_credentials(new_username, new_password)
+    while True:
+        print("do you wanna register like user or superuser?")
+        resp=input("0/1: ")
+        if resp =="0":
+            type="user"
+            break
+        elif resp =="1":
+            type="superuser"
+            break
+        else:
+            print("Wrong answer... Retry")
+    save_credentials(new_username, new_password,type)
     print("Registration Completed. Now you can login with your credentials.")
-    load_dotenv()
 
 
 def login():
@@ -65,20 +89,11 @@ def login():
     password = p.getpass_masked()
     
     if verify_credentials(username, password):
-        while True:
-            print("do you wanna log like user or superuser?")
-            resp=input("0/1: ")
-            if resp =="0":
-                type="user"
-                break
-            elif resp =="1":
-                type="superuser"
-                break
-            else:
-                print("Wrong answer... Retry")
+        type = dt.get_type(username)
         main(username,type)
     else:
         print("Incorrect credentials.")
+
 
 def main(username,type):
     message_history=[]
