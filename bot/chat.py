@@ -3,6 +3,8 @@ from configuration_const import config_const as c
 from rabbitmq import producer as p
 from rabbitmq import worker as w
 import pika
+import time
+import random
 chat_history = []
 def activate(chat_history):
     try:
@@ -15,16 +17,13 @@ def activate(chat_history):
     
 
 def question(chat_history):
-    
+    sleep_time=random.randint(2,4)
+    time.sleep(sleep_time)
     response = openai.ChatCompletion.create( 
         model="gpt-3.5-turbo", 
         messages=chat_history 
     )
     response=response.choices[0].message.get("content")
-    send_to_rabbit(response)
+    print("AI: "+response)
     return response
 
-def send_to_rabbit(response):
-    p.send_message_to_worker(response)
-    Work = w.Worker()
-    Work.start_consuming()

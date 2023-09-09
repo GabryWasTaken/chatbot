@@ -10,12 +10,16 @@ from user import User as u
 from users import superuser
 from superuser import SuperUser as s
 import os
+import json
 from dotenv import load_dotenv
 import passwordcheck as p
 import datetime
 from tabulate import tabulate
+import random
 from database import store_data as dt
 import hashlib
+import producer as pd
+import worker as wk
 load_dotenv()
 
 
@@ -122,15 +126,32 @@ def main(username,type):
             case 1:
                     print("Make a question to the AI")
                     prompt=input(username+": ")
-                    message_history=usr.send_message(message_history,prompt)
-
+                    info = [username,message_history,prompt]
+                    info=json.dumps(info)
+                    sleep_time=random.randint(3,5)
+                    time.sleep(sleep_time)
+                    pd.send_message_to_worker(info)
+                    w=wk.Worker()
+                    data=w.start_consuming()
+                    message_history=data[0]
+                    response=data[1]
+                    populate_db(username,prompt,response)             
             case 2:
                 chat_history=[]
                 print("Chat starts here... Write 'exit' if you wanna leave the chat")
                 while True:
-                    prompt=input(username+": ")  
-                    chat_history=usr.send_message(chat_history,prompt)
-                    if prompt =="exit":
+                    prompt=input(username+": ")
+                    info = [username,chat_history,prompt]
+                    info=json.dumps(info)
+                    sleep_time=random.randint(3,5)
+                    time.sleep(sleep_time)
+                    pd.send_message_to_worker(info)
+                    w=wk.Worker()
+                    data=w.start_consuming()
+                    chat_history = data[0]
+                    response = data[1]
+                    populate_db(username,prompt,response)
+                    if prompt.lower() == "exit":
                         break
 
             case 3:

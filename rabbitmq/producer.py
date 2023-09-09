@@ -9,9 +9,9 @@ def send_message_to_worker(message):
         print("Check if you inserted the right parameters")
         quit()
 
-    channel.queue_declare(queue='input_queue')
+    channel.queue_declare(queue='message_queue')
 
-    channel.basic_publish(exchange='', routing_key='input_queue', body=message)
+    channel.basic_publish(exchange='', routing_key='message_queue', body=message)
     #print(f"Sent message to worker: {message}")
     connection.close()
 
