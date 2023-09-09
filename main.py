@@ -51,7 +51,7 @@ def save_credentials(username, password,type):
     dt.store_user(username,password,type)
 
 def verify_credentials(username,password):
-    password= hashlib.md5(password.encode())
+    password= hashlib.sha256(password.encode())
     password=password.hexdigest() 
     doc = dt.search_credentials(username,password)
     try:

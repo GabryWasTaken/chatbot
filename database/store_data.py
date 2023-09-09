@@ -9,7 +9,7 @@ def store_user(username,password,type):
     collection=db.user
     collection.create_index([("user_name",pymongo.ASCENDING)])
     collection.create_index([("password",pymongo.ASCENDING)])
-    password= hashlib.md5(password.encode())
+    password= hashlib.sha256(password.encode())
     password=password.hexdigest()
     doc = {
     'user_name': username,
