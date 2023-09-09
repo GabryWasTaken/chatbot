@@ -35,3 +35,5 @@ call env\Scripts\activate #Replace this if you have a venv
 
 python main.py
 ```
+## SECURITY
+The users password is saved as a hash **sha256** in the database. It is saved in hash for security reasons because if there are data leaks, having the password in hash is really difficult to trace back to the real one. I used **sha256** encryption because it is one of the best encryption system and is not reversible
